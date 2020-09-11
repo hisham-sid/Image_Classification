@@ -27,14 +27,14 @@ def get_if():
 def main():
 
     if len(sys.argv)<3:
-        print ('pass 2 arguments: <destination> "<message>"')
+        print ('pass 2 arguments: <destination> "<image>"')
         exit(1)
 
     addr = socket.gethostbyname(sys.argv[1])
     iface = get_if()
     print("sending on interface %s to %s" % (iface, str(addr)))
 
-    image=Image.open("index2.png")
+    image=Image.open(sys.argv[2])
     w,h=image.size
     print(w)
     print(h)
