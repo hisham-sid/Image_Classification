@@ -4,6 +4,10 @@
 
 const bit<16> TYPE_IPV4 = 0x800;
 
+
+#define BLOOM_FILTER_ENTRIES 4096
+#define BLOOM_FILTER_BIT_WIDTH 1
+
 /*************************************************************************
 *********************** H E A D E R S  ***********************************
 *************************************************************************/
@@ -132,20 +136,57 @@ control MyVerifyChecksum(inout headers hdr, inout metadata meta) {
 control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
+
+
+    register<bit<BLOOM_FILTER_BIT_WIDTH>>(BLOOM_FILTER_ENTRIES) bloom_filter;
+    register<bit<16>>(1) count_reg;
+    bit<32> filter_address;
+    bit<1> filter_value;
+    bit<16>count=0;
+
     action drop() {
         mark_to_drop(standard_metadata);
     }
-    
+
+     action compute_hashes(int<8> colorR, int<8> colorG, int<8> colorB){
+       //here all the colors are considered to create a hash address for the register position
+       hash(filter_address, HashAlgorithm.crc16, (bit<32>)0, {colorR,
+                                                           colorG,
+                                                           colorB},
+                                                           (bit<32>)BLOOM_FILTER_ENTRIES);
+
+    }
+
+    //this is where the bloom filter work is done
     action ipv4_forward(macAddr_t dstAddr, egressSpec_t port) {
         standard_metadata.egress_spec = port;
         hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
         hdr.ethernet.dstAddr = dstAddr;
-        hdr.colors.red=0;
-        hdr.colors.green=0;
-        hdr.colors.blue=0;
+	
+	//read value from register, store in count
+	count_reg.read(count,0);
+
+	compute_hashes(hdr.colors.red,hdr.colors.green,hdr.colors.blue);
+
+	//read the bloom filter value at that hashed address
+	bloom_filter.read(filter_value,filter_address);
+
+	//if its 0, that means its a new color, increment counter (also ignore the ending packet)
+	if (filter_value==0 && hdr.udp.srcPort!=100)
+		count=count+1;
+
+	//if its new color, set the value as 1. If its old, the value is 1 anyways
+	bloom_filter.write(filter_address,1);
+
+	//write the counter value to register
+	count_reg.write(0,count);
+	
+	//store the value in the dstPort. (this is just a placeholder for testing, we can store it in another part of the packet later)
+	hdr.udp.dstPort=count;
         hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
     }
     
+   
     table ipv4_lpm {
         key = {
             hdr.ipv4.dstAddr: lpm;
@@ -209,8 +250,8 @@ control MyDeparser(packet_out packet, in headers hdr) {
         packet.emit(hdr.ethernet);
         packet.emit(hdr.ipv4);
         //packet.emit(hdr.tcp);
-        packet.emit(hdr.udp);
-        packet.emit(hdr.colors);
+	packet.emit(hdr.udp);
+	packet.emit(hdr.colors);
     }
 }
 

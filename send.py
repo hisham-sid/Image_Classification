@@ -47,6 +47,9 @@ def main():
     w,h=rgb_image.size
 
     #iterate every pixel primarily by row and then column
+    #pktstart =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff')
+    #pktstart= pktstart /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=1) 
+    #pktstart.show()
     for j in range(h):
         for i in range(w):
 
@@ -58,9 +61,13 @@ def main():
 
 	    #include the color values as a custom header named Colors, send it to the destination
             pkt =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff')
-            pkt = pkt /IP(dst=addr) / TCP(dport=1234, sport=random.randint(49152,65535))/Colors(red=redC,green=greenC,blue=blueC) 
+            pkt = pkt /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=random.randint(10000,60000))/Colors(red=redC,green=greenC,blue=blueC) 
             pkt.show()
             sendp(pkt, iface=iface, verbose=False)
 	
+    pkt2 =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff')
+    pkt2= pkt2 /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=100)  
+    pkt2.show()
+    sendp(pkt2, iface=iface, verbose=False)
 if __name__ == '__main__':
     main()
