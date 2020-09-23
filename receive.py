@@ -9,6 +9,7 @@ from scapy.all import ShortField, IntField, LongField, BitField, FieldListField,
 from scapy.all import IP, TCP, UDP, Raw
 from scapy.layers.inet import _IPOption_HDR
 
+
 def get_if():
     ifs=get_if_list()
     iface=None
@@ -34,12 +35,16 @@ class IPOption_MRI(IPOption):
                                    IntField("", 0),
                                    length_from=lambda pkt:pkt.count*4) ]
 def handle_pkt(pkt):
-    if UDP in pkt:
+    if UDP in pkt and pkt[UDP].dport>9999:
         print "got a packet"
-        pkt.show()
-    #    hexdump(pkt)
+        if pkt[UDP].sport==100:    
+            str=pkt[Raw].load
+            counter=struct.unpack('4B',str)
+            print counter
+            num=counter[0]*256**3+counter[1]*256**2+counter[2]*256**1+counter[3]
+	    print num
         sys.stdout.flush()
-
+    
 
 def main():
     ifaces = filter(lambda i: 'eth' in i, os.listdir('/sys/class/net/'))
@@ -48,6 +53,5 @@ def main():
     sys.stdout.flush()
     sniff(iface = iface,
           prn = lambda x: handle_pkt(x))
-
 if __name__ == '__main__':
     main()
