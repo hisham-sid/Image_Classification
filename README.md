@@ -12,9 +12,10 @@
 5. Next, navigate to the basic folder using cd
 6  Run make
 7. Once the mininet CLI is up, run xterm h1 h2
-
+8. Run the receive script from your receiving host using ./receive.py
 8. When invoking the send script from a host terminal, use the name of the image you wish to send as the argument instead of the message.
 
 For e.g:
   (for sending from h1 to h2) 
-  Command => ./send.py 10.0.2.2 index2.png
+  Command at h2 => ./receive.py
+  Command at h1 => ./send.py 10.0.2.2 index2.png
