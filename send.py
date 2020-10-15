@@ -18,7 +18,10 @@ class Colors(Packet):
 
 class Counts(Packet):
     name="Counts"
-    fields_desc=[ BitField("number",0,32) ]
+    fields_desc=[ BitField("number",0,32),
+                 BitField("low_gray",0,32),
+                 BitField("mid_gray",0,32),
+                 BitField("high_gray",0,32) ]
 
 #getting the interface from the interface list
 def get_if():
@@ -65,7 +68,7 @@ def main():
 
 	    #include the color values as a custom header named Colors, send it to the destination
             pkt =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff')
-            pkt = pkt /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=random.randint(10000,60000))/Colors(red=redC,green=greenC,blue=blueC)
+            pkt = pkt /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=random.randint(10000,60000))/Colors(red=redC,green=greenC,blue=blueC)/Counts()
             pkt.show()
             sendp(pkt, iface=iface, verbose=False)
 	

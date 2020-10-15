@@ -59,13 +59,16 @@ header tcp_t {
 }
 
 header colors_t {
-	int<8> red;
-	int<8> green;
-	int<8> blue;
+	bit<8> red;
+	bit<8> green;
+	bit<8> blue;
 }
 
 header counts_t {
 	bit<32> number;
+        bit<32> low_gray;
+	bit<32> mid_gray;
+	bit<32> high_gray;
 }
 
 struct metadata {
@@ -147,17 +150,25 @@ control MyIngress(inout headers hdr,
                   inout standard_metadata_t standard_metadata) {
 
 
-    register<bit<BLOOM_FILTER_BIT_WIDTH>>(BLOOM_FILTER_ENTRIES) bloom_filter;
-    register<bit<32>>(1) count_reg;
+   register<bit<BLOOM_FILTER_BIT_WIDTH>>(BLOOM_FILTER_ENTRIES) bloom_filter;
+   
+   register<bit<32>>(3) gray_reg; 
+   register<bit<32>>(1) count_reg;
+   
     bit<32> filter_address;
     bit<1> filter_value;
     bit<32>count;
+    bit<32> gray_pixel;
+    bit<32> low_gray;
+    bit<32> mid_gray;
+    bit<32> high_gray;
+   
 
     action drop() {
         mark_to_drop(standard_metadata);
     }
 
-     action compute_hashes(int<8> colorR, int<8> colorG, int<8> colorB){
+     action compute_hashes(bit<8> colorR, bit<8> colorG, bit<8> colorB){
        //here all the colors are considered to create a hash address for the register position
        hash(filter_address, HashAlgorithm.crc32, (bit<32>)0, {colorR,
                                                            colorG,
@@ -192,8 +203,20 @@ control MyIngress(inout headers hdr,
     
     apply {
         if (hdr.ipv4.isValid()) {
+
+	    //formula is gray=0.299*red + 0.587*green +0.114*blue. I multiplied by 64 to get whole numbers and then shifted 6 bits to the right
+	    gray_pixel = 19 * (bit<32>)hdr.colors.red;
+            gray_pixel = gray_pixel + 38 * (bit<32>)hdr.colors.green;
+	    gray_pixel = gray_pixel + 7 * (bit<32>)hdr.colors.blue;
+	    gray_pixel = gray_pixel >> 6;
+            
+	    
 	    //read value from register, store in count
 	    count_reg.read(count,0);
+	    gray_reg.read(low_gray,0);
+	    gray_reg.read(mid_gray,1);
+	    gray_reg.read(high_gray,2);
+
 
 	    compute_hashes(hdr.colors.red,hdr.colors.green,hdr.colors.blue);
 
@@ -201,18 +224,35 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 
 	    //if its 0, that means its a new color, increment counter (also ignore the ending packet)
-	    if (filter_value==0 && hdr.udp.srcPort!=100)
-		    count=count+1;
-
+	    if (hdr.udp.srcPort!=100) {
+		    if ( gray_pixel < 85 ) {
+		        	low_gray = low_gray + 1;
+	            }
+		   else if ( gray_pixel < 170  ) {
+		   	mid_gray = mid_gray + 1;
+	            }
+		   else if (gray_pixel <256)  {
+		   	high_gray = high_gray + 1;
+                    }
+	            if (filter_value==0 )
+			    count=count+1;
+	    }
 	    //if its new color, set the value as 1. If its old, the value is 1 anyways
 	    bloom_filter.write(filter_address,1);
 
 	    //write the counter value to register
 	    count_reg.write(0,count);
+	    gray_reg.write(0,low_gray);
+	    gray_reg.write(1,mid_gray);
+	    gray_reg.write(2,high_gray);
 	
 	    //store the value in the dstPort. (this is just a placeholder for testing, we can store it in another part of the packet later)
 	    hdr.counts.number=count;
-            ipv4_lpm.apply();
+	    hdr.counts.low_gray=low_gray;
+	    hdr.counts.mid_gray=mid_gray;
+	    hdr.counts.high_gray=high_gray;
+            
+	    ipv4_lpm.apply();
         }
     }
 }
