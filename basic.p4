@@ -204,7 +204,7 @@ control MyIngress(inout headers hdr,
     apply {
         if (hdr.ipv4.isValid()) {
 
-	    //formula is gray=0.299*red + 0.587*green +0.114*blue. I multiplied by 64 to get whole numbers and then shifted 6 bits to the right
+	    //formula is gray=0.299*red + 0.587*green +0.114*blue. I multiplied the formula by 64 to get whole numbers and then shifted 6 bits to the right
 	    gray_pixel = 19 * (bit<32>)hdr.colors.red;
             gray_pixel = gray_pixel + 38 * (bit<32>)hdr.colors.green;
 	    gray_pixel = gray_pixel + 7 * (bit<32>)hdr.colors.blue;
