@@ -9,7 +9,9 @@
   ( cd Image_Classification
   mv * [wherever the tutorials\exercises\basic folder is] )
   
-5. Next, navigate to the basic folder using cd
+5. Next, navigate to the basic folder using cd.
+6. move the file s1-runtime.json to the pod-topo folder using
+  mv s1-runtime.json pod-topo
 6  Run make
 7. Once the mininet CLI is up, run xterm h1 h2
 8. Run the receive script from your receiving host using ./receive.py
