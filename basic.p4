@@ -69,6 +69,7 @@ header counts_t {
         bit<32> low_gray;
 	bit<32> mid_gray;
 	bit<32> high_gray;
+	bit<32> tableval;
 }
 
 struct metadata {
@@ -162,6 +163,7 @@ control MyIngress(inout headers hdr,
     bit<32> low_gray;
     bit<32> mid_gray;
     bit<32> high_gray;
+    int<32> tester;
    
 
     action drop() {
@@ -177,7 +179,6 @@ control MyIngress(inout headers hdr,
 
     }
 
-    //this is where the bloom filter work is done
     action ipv4_forward(macAddr_t dstAddr, egressSpec_t port) {
         standard_metadata.egress_spec = port;
         hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
@@ -187,7 +188,23 @@ control MyIngress(inout headers hdr,
         hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
     }
     
+    action set_port(bit<32> newval) {
+	hdr.counts.tableval=newval;
+    }
    
+    table logmatch {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
     table ipv4_lpm {
         key = {
             hdr.ipv4.dstAddr: lpm;
@@ -203,7 +220,7 @@ control MyIngress(inout headers hdr,
     
     apply {
         if (hdr.ipv4.isValid()) {
-
+	    tester=(int<32>) hdr.counts.number; 
 	    //formula is gray=0.299*red + 0.587*green +0.114*blue. I multiplied the formula by 64 to get whole numbers and then shifted 6 bits to the right
 	    gray_pixel = 19 * (bit<32>)hdr.colors.red;
             gray_pixel = gray_pixel + 38 * (bit<32>)hdr.colors.green;
@@ -224,7 +241,7 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 
 	    //if its 0, that means its a new color, increment counter (also ignore the ending packet)
-	    if (hdr.udp.srcPort!=100) {
+	    if (hdr.udp.srcPort!=10000) {
 		    if ( gray_pixel < 85 ) {
 		        	low_gray = low_gray + 1;
 	            }
@@ -251,8 +268,9 @@ control MyIngress(inout headers hdr,
 	    hdr.counts.low_gray=low_gray;
 	    hdr.counts.mid_gray=mid_gray;
 	    hdr.counts.high_gray=high_gray;
-            
+            logmatch.apply();
 	    ipv4_lpm.apply();
+	    
         }
     }
 }

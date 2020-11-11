@@ -36,20 +36,25 @@ class IPOption_MRI(IPOption):
                                    IntField("", 0),
                                    length_from=lambda pkt:pkt.count*4) ]
 def handle_pkt(pkt):
-    if UDP in pkt and pkt[UDP].dport>9999:  
+    if UDP in pkt and pkt[UDP].dport>9999:
+        #pkt.show()  
         str=pkt[Raw].load
-        counter=struct.unpack('16B',str)
+        counter=struct.unpack('20B',str)
 
         num=counter[0]*256**3+counter[1]*256**2+counter[2]*256**1+counter[3]
         low_gray=counter[4]*256**3+counter[5]*256**2+counter[6]*256**1+counter[7]
         mid_gray=counter[8]*256**3+counter[9]*256**2+counter[10]*256**1+counter[11]
         high_gray=counter[12]*256**3+counter[13]*256**2+counter[14]*256**1+counter[15]
-        if (pkt[UDP].sport==100):
+        table_val=counter[16]*256**3+counter[17]*256**2+counter[18]*256**1+counter[19]
+        if (pkt[UDP].sport==10000):
             print("Counter\tLow\tMid\tHigh")
             print(num,end=' \t')
             print(low_gray,end='\t ')
             print(mid_gray,end=' \t')
-            print(high_gray) 
+            print(high_gray)
+        else:
+            print("Table Val",end=' ')
+            print('{:032b}'.format(table_val))
         sys.stdout.flush()
     
 
