@@ -70,6 +70,9 @@ header counts_t {
 	bit<32> mid_gray;
 	bit<32> high_gray;
 	bit<32> tableval;
+	bit<32> contrast;
+	bit<32> max;
+	bit<32> min;
 }
 
 struct metadata {
@@ -155,6 +158,7 @@ control MyIngress(inout headers hdr,
    
    register<bit<32>>(3) gray_reg; 
    register<bit<32>>(1) count_reg;
+   register<bit<32>>(2) gray_maxmin;
    
     bit<32> filter_address;
     bit<1> filter_value;
@@ -163,7 +167,13 @@ control MyIngress(inout headers hdr,
     bit<32> low_gray;
     bit<32> mid_gray;
     bit<32> high_gray;
+    bit<32> min_gray;
+    bit<32> max_gray;
     int<32> tester;
+    int<32> val_one;
+    int<32> val_two;
+    int<32> total_pixel;
+    int<32> result;
    
 
     action drop() {
@@ -188,8 +198,8 @@ control MyIngress(inout headers hdr,
         hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
     }
     
-    action set_port(bit<32> newval) {
-	hdr.counts.tableval=newval;
+    action set_port(int<32> newval) {
+	result=newval;
     }
    
     table logmatch {
@@ -205,6 +215,149 @@ control MyIngress(inout headers hdr,
         default_action = drop();
     }
 
+    table logmatch_count {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+    table logmatch_lowgray {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+    table logmatch_midgray {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+    table logmatch_highgray {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+    table logmatch_contrastnum {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+    table logmatch_contrastden {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+    table expmatch_count {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+    table expmatch_highgray {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+    table expmatch_lowgray {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+    table expmatch_midgray {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+
+    table expmatch_contrast {
+        key = {
+            tester: exact;
+        }
+        actions = {
+            set_port;
+            drop;
+            NoAction;
+        }
+        size = 1024;
+        default_action = drop();
+    }
     table ipv4_lpm {
         key = {
             hdr.ipv4.dstAddr: lpm;
@@ -217,10 +370,16 @@ control MyIngress(inout headers hdr,
         size = 1024;
         default_action = drop();
     }
+
     
     apply {
         if (hdr.ipv4.isValid()) {
 	    tester=(int<32>) hdr.counts.number; 
+            logmatch.apply();
+
+	   hdr.counts.tableval=(bit<32>)result;
+
+
 	    //formula is gray=0.299*red + 0.587*green +0.114*blue. I multiplied the formula by 64 to get whole numbers and then shifted 6 bits to the right
 	    gray_pixel = 19 * (bit<32>)hdr.colors.red;
             gray_pixel = gray_pixel + 38 * (bit<32>)hdr.colors.green;
@@ -233,6 +392,13 @@ control MyIngress(inout headers hdr,
 	    gray_reg.read(low_gray,0);
 	    gray_reg.read(mid_gray,1);
 	    gray_reg.read(high_gray,2);
+	    gray_maxmin.read(min_gray,0);
+	    gray_maxmin.read(max_gray,1);
+
+	    if (min_gray==0) min_gray=99999;
+
+	    if (gray_pixel > max_gray) max_gray=gray_pixel;
+	    if (gray_pixel < min_gray && gray_pixel!=0) min_gray=gray_pixel;
 
 
 	    compute_hashes(hdr.colors.red,hdr.colors.green,hdr.colors.blue);
@@ -251,8 +417,46 @@ control MyIngress(inout headers hdr,
 		   else if (gray_pixel <256)  {
 		   	high_gray = high_gray + 1;
                     }
-	            if (filter_value==0 )
+	            if (filter_value==0 ) {
 			    count=count+1;
+		    }
+	    }
+	    else {
+		tester=(int<32>)count;
+		logmatch_count.apply();
+		total_pixel=result;
+
+		tester=(int<32>)low_gray;
+		logmatch_lowgray.apply();
+		val_one=result;
+		tester=total_pixel-val_one;
+		expmatch_lowgray.apply();
+
+		tester=(int<32>)mid_gray;
+		logmatch_midgray.apply();
+		val_one=result;
+		tester=total_pixel-val_one;
+		expmatch_midgray.apply();
+
+		tester=(int<32>)high_gray;
+		logmatch_highgray.apply();
+		val_one=result;
+		tester=total_pixel-val_one;
+		expmatch_highgray.apply();
+
+		//tester=(int<32>)max_gray+(int<32>)min_gray;
+		tester=255;
+		logmatch_contrastnum.apply();
+		val_one=result;
+		tester=(int<32>)max_gray-(int<32>)min_gray;
+		logmatch_contrastden.apply();
+		val_two=result;
+		tester=val_one-val_two;
+		expmatch_contrast.apply();
+		hdr.counts.contrast=(bit<32>)result;
+		hdr.counts.max=(bit<32>)val_one;
+		hdr.counts.min=(bit<32>)val_two;
+	    	
 	    }
 	    //if its new color, set the value as 1. If its old, the value is 1 anyways
 	    bloom_filter.write(filter_address,1);
@@ -262,13 +466,15 @@ control MyIngress(inout headers hdr,
 	    gray_reg.write(0,low_gray);
 	    gray_reg.write(1,mid_gray);
 	    gray_reg.write(2,high_gray);
+	    gray_maxmin.write(0,min_gray);
+	    gray_maxmin.write(1,max_gray);
 	
 	    //store the value in the dstPort. (this is just a placeholder for testing, we can store it in another part of the packet later)
 	    hdr.counts.number=count;
 	    hdr.counts.low_gray=low_gray;
 	    hdr.counts.mid_gray=mid_gray;
 	    hdr.counts.high_gray=high_gray;
-            logmatch.apply();
+
 	    ipv4_lpm.apply();
 	    
         }
