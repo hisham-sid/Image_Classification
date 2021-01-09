@@ -22,10 +22,10 @@ class Counts(Packet):
                  BitField("low_gray",0,32),
                  BitField("mid_gray",0,32),
                  BitField("high_gray",0,32),
-                 BitField("table_val",0,32),
-                 BitField("contrast",0,32),
-                 BitField("max",0,32),
-                 BitField("min",0,32) ]
+                 BitField("sequence",0,32),
+                 BitField("low_ratio",0,32),
+                 BitField("mid_ratio",0,32),
+                 BitField("high_ratio",0,32) ]
 
 #getting the interface from the interface list
 def get_if():
@@ -58,9 +58,6 @@ def main():
     w,h=rgb_image.size
 
     #iterate every pixel primarily by row and then column
-    #pktstart =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff')
-    #pktstart= pktstart /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=1) 
-    #pktstart.show()
     for j in range(h):
         for i in range(w):
 
@@ -72,12 +69,12 @@ def main():
 
 	    #include the color values as a custom header named Colors, send it to the destination
             pkt =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff')
-            pkt = pkt /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=random.randint(10001,60000))/Colors(red=redC,green=greenC,blue=blueC)/Counts(number=random.randint(1,200))
+            pkt = pkt /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=random.randint(10001,60000))/Colors(red=redC,green=greenC,blue=blueC)/Counts(sequence=w*j+i)
             pkt.show()
             sendp(pkt, iface=iface, verbose=False)
 	
     pkt2 =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff')
-    pkt2= pkt2 /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=10000)/Colors()/Counts(number=random.randint(1,3))  
+    pkt2= pkt2 /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=10000)/Colors()/Counts(sequence=w*h)  
     pkt2.show()
     sendp(pkt2, iface=iface, verbose=False)
 if __name__ == '__main__':
