@@ -59,9 +59,21 @@ header tcp_t {
 }
 
 header colors_t {
-	bit<8> red;
-	bit<8> green;
-	bit<8> blue;
+	bit<8> red1;
+	bit<8> green1;
+	bit<8> blue1;
+
+	bit<8> red2;
+	bit<8> green2;
+	bit<8> blue2;
+
+	bit<8> red3;
+	bit<8> green3;
+	bit<8> blue3;
+
+	bit<8> red4;
+	bit<8> green4;
+	bit<8> blue4;
 }
 
 header counts_t {
@@ -69,7 +81,7 @@ header counts_t {
         bit<32> low_gray;
 	bit<32> mid_gray;
 	bit<32> high_gray;
-	bit<32> sequence;
+	bit<32> contrast;
 	bit<32> low_ratio;
 	bit<32> mid_ratio;
 	bit<32> high_ratio;
@@ -82,7 +94,6 @@ struct metadata {
 struct headers {
     ethernet_t   ethernet;
     ipv4_t       ipv4;
-    //tcp_t tcp;
     udp_t udp;
     colors_t colors;
     counts_t counts;
@@ -1004,11 +1015,14 @@ control MyIngress(inout headers hdr,
 
    register<bit<32>>(1) count_reg;
    bit<32>count;
-   bit<32> gray_pixel=32w0;
+   bit<32> gray_pixel1=32w0;
+   bit<32> gray_pixel2=32w0;
+   bit<32> gray_pixel3=32w0;
+   bit<32> gray_pixel4=32w0;
    
     register<bit<32>>(2) gray_maxmin;
-    bit<32> min_gray;
-    bit<32> max_gray;
+    bit<32> min_gray=32w99999;
+    bit<32> max_gray=32w0;
     bit<32> contrast;   
 
 		   
@@ -1016,10 +1030,22 @@ control MyIngress(inout headers hdr,
     div() DivMidGray;
     div() DivHighGray;
     div() DivContrast;
-    mul() MulTest;
-    mul() MulRed;
-    mul() MulGreen;
-    mul() MulBlue;
+
+    mul() MulRed1;
+    mul() MulGreen1;
+    mul() MulBlue1;
+
+    mul() MulRed2;
+    mul() MulGreen2;
+    mul() MulBlue2;
+
+    mul() MulRed3;
+    mul() MulGreen3;
+    mul() MulBlue3;
+
+    mul() MulRed4;
+    mul() MulGreen4;
+    mul() MulBlue4;
     
     action drop() {
         mark_to_drop(standard_metadata);
@@ -1060,35 +1086,7 @@ control MyIngress(inout headers hdr,
     apply {
         if (hdr.ipv4.isValid()) {
 
-
-	    //formula is gray=0.299*red + 0.587*green +0.114*blue
-	   bit<32> red_C=(bit<32>)hdr.colors.red << 4;
-	   bit<32> green_C=(bit<32>)hdr.colors.green << 4;
-	   bit<32> blue_C=(bit<32>)hdr.colors.blue << 4;
-          
-
-	    bit<32> red_M=32w6; //approx 0.299
-	    bit<32> green_M=32w9; //approx 0.587
-            bit<32> blue_M=32w2; //approx 0.114
-	    bit<32> coeff_result=32w0;
-
-	    MulRed.apply(red_M,red_C,coeff_result);
-	    gray_pixel=gray_pixel+coeff_result;
-	    MulGreen.apply(green_M,green_C,coeff_result);						//using color information to convert to grayscale value
-	    gray_pixel=gray_pixel+coeff_result;
-	    MulBlue.apply(blue_M,blue_C,coeff_result);
-	    gray_pixel=gray_pixel+coeff_result;
-
-	    bit<4> floating=gray_pixel[3:0];
-	    gray_pixel=gray_pixel >> 4;
-	    if (floating >= 8) {
-		gray_pixel=gray_pixel+1;
-	    }
-	    if (gray_pixel > 255) gray_pixel = 32w255;
-	
-
-	    
-	    //read value from register, store in count
+	    //read values from register, store in the variables
 	    count_reg.read(count,0);
 	    gray_reg.read(low_gray,0);
 	    gray_reg.read(mid_gray,1);
@@ -1096,33 +1094,194 @@ control MyIngress(inout headers hdr,
 	    gray_maxmin.read(min_gray,0);
 	    gray_maxmin.read(max_gray,1);
 
-	    if (min_gray==0) min_gray=99999;
-	    if (gray_pixel > max_gray) max_gray=gray_pixel;						//for finding maximum and minimum intensity for contrast calculation
-	    if (gray_pixel < min_gray && gray_pixel!=0) min_gray=gray_pixel;
+	    bit<32> red_M=32w6; //approx 0.299
+	    bit<32> green_M=32w9; //approx 0.587
+            bit<32> blue_M=32w2; //approx 0.114
+	    bit<32> coeff_result=32w0;
 
 
-	    compute_hashes(hdr.colors.red,hdr.colors.green,hdr.colors.blue);
+	    //formula is gray=0.299*red + 0.587*green +0.114*blue, this is done for each pixel form the chunk
+	   bit<32> red_C1=(bit<32>)hdr.colors.red1 << 4;
+	   bit<32> green_C1=(bit<32>)hdr.colors.green1 << 4;
+	   bit<32> blue_C1=(bit<32>)hdr.colors.blue1 << 4;
 
+	   bit<32> red_C2=(bit<32>)hdr.colors.red2 << 4;
+	   bit<32> green_C2=(bit<32>)hdr.colors.green2 << 4;
+	   bit<32> blue_C2=(bit<32>)hdr.colors.blue2 << 4;
+
+	   bit<32> red_C3=(bit<32>)hdr.colors.red3 << 4;
+	   bit<32> green_C3=(bit<32>)hdr.colors.green3 << 4;
+	   bit<32> blue_C3=(bit<32>)hdr.colors.blue3 << 4;
+
+	   bit<32> red_C4=(bit<32>)hdr.colors.red4 << 4;
+	   bit<32> green_C4=(bit<32>)hdr.colors.green4 << 4;
+	   bit<32> blue_C4=(bit<32>)hdr.colors.blue4 << 4;
+          
+
+
+
+	    MulRed1.apply(red_M,red_C1,coeff_result);
+	    gray_pixel1=gray_pixel1+coeff_result;
+	    MulGreen1.apply(green_M,green_C1,coeff_result);						//using color information to convert to grayscale value for pixel 1
+	    gray_pixel1=gray_pixel1+coeff_result;
+	    MulBlue1.apply(blue_M,blue_C1,coeff_result);
+	    gray_pixel1=gray_pixel1+coeff_result;
+
+	    MulRed2.apply(red_M,red_C2,coeff_result);
+	    gray_pixel2=gray_pixel2+coeff_result;
+	    MulGreen2.apply(green_M,green_C2,coeff_result);						//using color information to convert to grayscale value for pixel 2
+	    gray_pixel2=gray_pixel2+coeff_result;
+	    MulBlue2.apply(blue_M,blue_C2,coeff_result);
+	    gray_pixel2=gray_pixel2+coeff_result;
+
+	    MulRed3.apply(red_M,red_C3,coeff_result);
+	    gray_pixel3=gray_pixel3+coeff_result;
+	    MulGreen3.apply(green_M,green_C3,coeff_result);						//using color information to convert to grayscale value for pixel 3
+	    gray_pixel3=gray_pixel3+coeff_result;
+	    MulBlue3.apply(blue_M,blue_C3,coeff_result);
+	    gray_pixel3=gray_pixel3+coeff_result;
+
+	    MulRed4.apply(red_M,red_C4,coeff_result);
+	    gray_pixel4=gray_pixel4+coeff_result;
+	    MulGreen4.apply(green_M,green_C4,coeff_result);						//using color information to convert to grayscale value for pixel 4
+	    gray_pixel4=gray_pixel4+coeff_result;
+	    MulBlue4.apply(blue_M,blue_C4,coeff_result);
+	    gray_pixel4=gray_pixel4+coeff_result;
+
+	    bit<4> floating=gray_pixel1[3:0];
+	    gray_pixel1=gray_pixel1 >> 4;
+	    if (floating >= 8) {
+		gray_pixel1=gray_pixel1+1;												//If fractional part for the value is above 0.5 (8 in fixed-point notation), ceiling is taken
+	    }
+	    if (gray_pixel1 > 255) gray_pixel1 = 32w255;
+
+	    floating=gray_pixel2[3:0];
+	    gray_pixel2=gray_pixel2 >> 4;
+	    if (floating >= 8) {
+		gray_pixel2=gray_pixel2+1;
+	    }
+	    if (gray_pixel2 > 255) gray_pixel2 = 32w255;
+
+	    floating=gray_pixel3[3:0];
+	    gray_pixel3=gray_pixel3 >> 4;
+	    if (floating >= 8) {
+		gray_pixel3=gray_pixel3+1;
+	    }
+	    if (gray_pixel3 > 255) gray_pixel3 = 32w255;
+
+	    floating=gray_pixel4[3:0];
+	    gray_pixel4=gray_pixel4 >> 4;
+	    if (floating >= 8) {
+		gray_pixel4=gray_pixel4+1;
+	    }
+	    if (gray_pixel4 > 255) gray_pixel4 = 32w255;
+
+
+	    if (min_gray==0) min_gray=9999;
+	    if (gray_pixel1 > max_gray) max_gray=gray_pixel1;						//for finding maximum and minimum intensity for contrast calculation
+	    if (gray_pixel1 < min_gray && gray_pixel1!=0) min_gray=gray_pixel1;
+
+	    if (gray_pixel2 > max_gray) max_gray=gray_pixel2;						
+	    if (gray_pixel2 < min_gray && gray_pixel2!=0) min_gray=gray_pixel2;
+
+	    if (gray_pixel3 > max_gray) max_gray=gray_pixel3;						
+	    if (gray_pixel3 < min_gray && gray_pixel3!=0) min_gray=gray_pixel3;
+
+	    if (gray_pixel4 > max_gray) max_gray=gray_pixel4;						
+	    if (gray_pixel4 < min_gray && gray_pixel4!=0) min_gray=gray_pixel4;
+
+
+	    compute_hashes(hdr.colors.red1,hdr.colors.green1,hdr.colors.blue1);
 	    //read the bloom filter value at that hashed address
 	    bloom_filter.read(filter_value,filter_address);
-
 	    //if its 0, that means its a new color, increment counter
 	    if (hdr.udp.srcPort!=10000) {
-		    if ( gray_pixel < 85 ) {
+		    if ( gray_pixel1 < 85 ) {
 		        	low_gray = low_gray + 1;
 	            }
-		   else if ( gray_pixel < 170  ) {
+		   else if ( gray_pixel1 < 170  ) {
 		   	mid_gray = mid_gray + 1;
 	            }
-		   else if (gray_pixel < 256)  {
+		   else if (gray_pixel1 < 256)  {
 		   	high_gray = high_gray + 1;
                     }
 	            if (filter_value==0 ) {
 			    count=count+1;
 		    }
 	    }
-	    else {
-		bit<32> total_pixel=hdr.counts.sequence;
+    	    //if its new color, set the value as 1. If its old, the value is 1 anyways
+	    bloom_filter.write(filter_address,1);
+
+
+	    compute_hashes(hdr.colors.red2,hdr.colors.green2,hdr.colors.blue2);
+	    //read the bloom filter value at that hashed address
+	    bloom_filter.read(filter_value,filter_address);
+	    //if its 0, that means its a new color, increment counter
+	    if (hdr.udp.srcPort!=10000) {
+		    if ( gray_pixel2 < 85 ) {
+		        	low_gray = low_gray + 1;
+	            }
+		   else if ( gray_pixel2 < 170  ) {
+		   	mid_gray = mid_gray + 1;
+	            }
+		   else if (gray_pixel2 < 256)  {
+		   	high_gray = high_gray + 1;
+                    }
+	            if (filter_value==0 ) {
+			    count=count+1;
+		    }
+	    }
+    	    //if its new color, set the value as 1. If its old, the value is 1 anyways
+	    bloom_filter.write(filter_address,1);
+
+
+	    compute_hashes(hdr.colors.red3,hdr.colors.green3,hdr.colors.blue3);
+	    //read the bloom filter value at that hashed address
+	    bloom_filter.read(filter_value,filter_address);
+	    //if its 0, that means its a new color, increment counter
+	    if (hdr.udp.srcPort!=10000) {
+		    if ( gray_pixel3 < 85 ) {
+		        	low_gray = low_gray + 1;
+	            }
+		   else if ( gray_pixel3 < 170  ) {
+		   	mid_gray = mid_gray + 1;
+	            }
+		   else if (gray_pixel3 < 256)  {
+		   	high_gray = high_gray + 1;
+                    }
+	            if (filter_value==0 ) {
+			    count=count+1;
+		    }
+	    }
+    	    //if its new color, set the value as 1. If its old, the value is 1 anyways
+	    bloom_filter.write(filter_address,1);
+
+
+	    compute_hashes(hdr.colors.red4,hdr.colors.green4,hdr.colors.blue4);
+	    //read the bloom filter value at that hashed address
+	    bloom_filter.read(filter_value,filter_address);
+	    //if its 0, that means its a new color, increment counter
+	    if (hdr.udp.srcPort!=10000) {
+		    if ( gray_pixel4 < 85 ) {
+		        	low_gray = low_gray + 1;
+	            }
+		   else if ( gray_pixel4 < 170  ) {
+		   	mid_gray = mid_gray + 1;
+	            }
+		   else if (gray_pixel4 < 256)  {
+		   	high_gray = high_gray + 1;
+                    }
+	            if (filter_value==0 ) {
+			    count=count+1;
+		    }
+	    }
+    	    //if its new color, set the value as 1. If its old, the value is 1 anyways
+	    bloom_filter.write(filter_address,1);
+
+
+
+	    if (hdr.udp.srcPort==10000)  {
+		bit<32> total_pixel=hdr.counts.contrast*4;
 		DivLowGray.apply(low_gray,total_pixel,low_ratio);
 		DivMidGray.apply(mid_gray,total_pixel,mid_ratio);
 		DivHighGray.apply(high_gray,total_pixel,high_ratio);
@@ -1136,13 +1295,9 @@ control MyIngress(inout headers hdr,
 		bit<32> contrast_den=max_gray+min_gray;
 		contrast_den=contrast_den <<4;
 		DivContrast.apply(contrast_num,contrast_den,contrast);
-		hdr.counts.sequence=contrast;
-		
-		
+		hdr.counts.contrast=contrast;
 	    }
 
-	    //if its new color, set the value as 1. If its old, the value is 1 anyways
-	    bloom_filter.write(filter_address,1);
 
 	    //write the counter value to register
 	    count_reg.write(0,count);
