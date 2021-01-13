@@ -67,6 +67,9 @@ def main():
     w,h=rgb_image.size
 
     sqn=0;
+
+    s = conf.L2socket(iface=iface)
+
     #iterate every pixel primarily by row and then column
     for j in range(0,h,2):
         for i in range(0,w,2):
@@ -88,7 +91,7 @@ def main():
             pkt = pkt /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=random.randint(10001,60000))/Colors(red1=redC1,green1=greenC1,blue1=blueC1,red2=redC2,green2=greenC2,blue2=blueC2,red3=redC3,green3=greenC3,blue3=blueC3,red4=redC4,green4=greenC4,blue4=blueC4)/Counts(sequence=sqn)
             pkt.show()
             sqn=sqn+1
-            sendp(pkt, iface=iface, verbose=False)
+            s.send(pkt)
 	
     pkt2 =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff')
     pkt2= pkt2 /IP(dst=addr) / UDP(dport=random.randint(10000,60000), sport=10000)/Colors()/Counts(sequence=sqn)  
