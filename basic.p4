@@ -74,6 +74,26 @@ header colors_t {
 	bit<8> red4;
 	bit<8> green4;
 	bit<8> blue4;
+
+	bit<8> red5;
+	bit<8> green5;
+	bit<8> blue5;
+
+	bit<8> red6;
+	bit<8> green6;
+	bit<8> blue6;
+
+	bit<8> red7;
+	bit<8> green7;
+	bit<8> blue7;
+
+	bit<8> red8;
+	bit<8> green8;
+	bit<8> blue8;
+
+	bit<8> red9;
+	bit<8> green9;
+	bit<8> blue9;
 }
 
 header counts_t {
@@ -81,10 +101,11 @@ header counts_t {
         bit<32> low_gray;
 	bit<32> mid_gray;
 	bit<32> high_gray;
+	bit<32> edge_count;
+	bit<32> brightness;
 	bit<32> contrast;
-	bit<32> low_ratio;
-	bit<32> mid_ratio;
-	bit<32> high_ratio;
+	bit<32> class_decision;
+	bit<32> sequence;
 }
 
 struct metadata {
@@ -999,11 +1020,12 @@ control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
 
-
+    //feature1 colors
    register<bit<BLOOM_FILTER_BIT_WIDTH>>(BLOOM_FILTER_ENTRIES) bloom_filter;
    bit<32> filter_address;
    bit<1> filter_value;  
    
+    //feature2,3,4 low,mid,high intensity
    register<bit<32>>(3) gray_reg;
    bit<32> low_gray;
    bit<32> mid_gray;
@@ -1012,23 +1034,40 @@ control MyIngress(inout headers hdr,
    bit<32> mid_ratio=32w0;
    bit<32> high_ratio=32w0; 
 
-
+   //feature6,7 brightness, contrast
    register<bit<32>>(1) count_reg;
+   register<bit<32>>(1) count_intensity;
    bit<32>count;
    bit<32> gray_pixel1=32w0;
    bit<32> gray_pixel2=32w0;
    bit<32> gray_pixel3=32w0;
    bit<32> gray_pixel4=32w0;
+   bit<32> gray_pixel5=32w0;
+   bit<32> gray_pixel6=32w0;
+   bit<32> gray_pixel7=32w0;
+   bit<32> gray_pixel8=32w0;
+   bit<32> gray_pixel9=32w0;
+   bit<32> intensity_count=32w0;
+   bit<32> brightness=32w0;
    
+    //feature7 contrast
     register<bit<32>>(2) gray_maxmin;
     bit<32> min_gray=32w99999;
     bit<32> max_gray=32w0;
-    bit<32> contrast;   
+    bit<32> contrast=32w0;  
+    register<bit<32>>(1) packets;
+    bit<32> packetno=32w0; 
+
+    //feature5 edge_count
+    register<int<32>>(1) laplace_prev;
+    register<bit<32>>(1) count_edge;
+    bit<32> edge_count;
+    int<32> prev_laplace;
+    int<32> laplace;
+
 
 		   
-    div() DivLowGray;
-    div() DivMidGray;
-    div() DivHighGray;
+    div() DivBrightness;
     div() DivContrast;
 
     mul() MulRed1;
@@ -1046,7 +1085,36 @@ control MyIngress(inout headers hdr,
     mul() MulRed4;
     mul() MulGreen4;
     mul() MulBlue4;
-    
+
+    mul() MulRed5;
+    mul() MulGreen5;
+    mul() MulBlue5;
+
+    mul() MulRed6;
+    mul() MulGreen6;
+    mul() MulBlue6;
+
+    mul() MulRed7;
+    mul() MulGreen7;
+    mul() MulBlue7;
+
+    mul() MulRed8;
+    mul() MulGreen8;
+    mul() MulBlue8;
+
+    mul() MulRed9;
+    mul() MulGreen9;
+    mul() MulBlue9;
+
+    bit<32> final_class=32w0;
+    bit<32> feature1=32w0;
+    bit<32> feature2=32w0;
+    bit<32> feature3=32w0;
+    bit<32> feature4=32w0;
+    bit<32> feature5=32w0;
+    bit<32> feature6=32w0;
+    bit<32> feature7=32w0;
+
     action drop() {
         mark_to_drop(standard_metadata);
     }
@@ -1067,6 +1135,9 @@ control MyIngress(inout headers hdr,
         hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
     }
 
+    action class_value(bit<32> value) {
+	final_class=value;
+    }
  
     table ipv4_lpm {
         key = {
@@ -1080,19 +1151,44 @@ control MyIngress(inout headers hdr,
         size = 1024;
         default_action = drop();
     }
-	
+
+    table decision_table {
+        key = {
+            feature1: range;
+	    feature2: range;
+	    feature3: range;
+	    feature4: range;
+	    feature5: range;
+	    feature6: range;
+	    feature7: range;
+        }
+        actions = {
+            class_value;
+            NoAction;
+        }
+    }	
 
     
     apply {
+
         if (hdr.ipv4.isValid()) {
+
+	    packets.read(packetno,0);
+	    packetno=packetno+1;
+	    packets.write(0,packetno);
 
 	    //read values from register, store in the variables
 	    count_reg.read(count,0);
+	    count_intensity.read(intensity_count,0);
+	    count_edge.read(edge_count,0);
+	    laplace_prev.read(prev_laplace,0);
 	    gray_reg.read(low_gray,0);
 	    gray_reg.read(mid_gray,1);
 	    gray_reg.read(high_gray,2);
 	    gray_maxmin.read(min_gray,0);
 	    gray_maxmin.read(max_gray,1);
+
+
 
 	    bit<32> red_M=32w6; //approx 0.299
 	    bit<32> green_M=32w9; //approx 0.587
@@ -1116,6 +1212,26 @@ control MyIngress(inout headers hdr,
 	   bit<32> red_C4=(bit<32>)hdr.colors.red4 << 4;
 	   bit<32> green_C4=(bit<32>)hdr.colors.green4 << 4;
 	   bit<32> blue_C4=(bit<32>)hdr.colors.blue4 << 4;
+
+	   bit<32> red_C5=(bit<32>)hdr.colors.red5 << 4;
+	   bit<32> green_C5=(bit<32>)hdr.colors.green5 << 4;
+	   bit<32> blue_C5=(bit<32>)hdr.colors.blue5 << 4;
+
+	   bit<32> red_C6=(bit<32>)hdr.colors.red6 << 4;
+	   bit<32> green_C6=(bit<32>)hdr.colors.green6 << 4;
+	   bit<32> blue_C6=(bit<32>)hdr.colors.blue6 << 4;
+
+	   bit<32> red_C7=(bit<32>)hdr.colors.red7 << 4;
+	   bit<32> green_C7=(bit<32>)hdr.colors.green7 << 4;
+	   bit<32> blue_C7=(bit<32>)hdr.colors.blue7 << 4;
+
+	   bit<32> red_C8=(bit<32>)hdr.colors.red8 << 4;
+	   bit<32> green_C8=(bit<32>)hdr.colors.green8 << 4;
+	   bit<32> blue_C8=(bit<32>)hdr.colors.blue8 << 4;
+
+	   bit<32> red_C9=(bit<32>)hdr.colors.red9 << 4;
+	   bit<32> green_C9=(bit<32>)hdr.colors.green9 << 4;
+	   bit<32> blue_C9=(bit<32>)hdr.colors.blue9 << 4;
           
 
 
@@ -1148,6 +1264,47 @@ control MyIngress(inout headers hdr,
 	    MulBlue4.apply(blue_M,blue_C4,coeff_result);
 	    gray_pixel4=gray_pixel4+coeff_result;
 
+	    MulRed5.apply(red_M,red_C5,coeff_result);
+	    gray_pixel5=gray_pixel5+coeff_result;
+	    MulGreen5.apply(green_M,green_C5,coeff_result);						//using color information to convert to grayscale value for pixel 4
+	    gray_pixel5=gray_pixel5+coeff_result;
+	    MulBlue5.apply(blue_M,blue_C5,coeff_result);
+	    gray_pixel5=gray_pixel5+coeff_result;
+
+	    MulRed6.apply(red_M,red_C6,coeff_result);
+	    gray_pixel6=gray_pixel6+coeff_result;
+	    MulGreen6.apply(green_M,green_C6,coeff_result);						//using color information to convert to grayscale value for pixel 4
+	    gray_pixel6=gray_pixel6+coeff_result;
+	    MulBlue6.apply(blue_M,blue_C6,coeff_result);
+	    gray_pixel6=gray_pixel6+coeff_result;
+
+	    MulRed7.apply(red_M,red_C7,coeff_result);
+	    gray_pixel7=gray_pixel7+coeff_result;
+	    MulGreen7.apply(green_M,green_C7,coeff_result);						//using color information to convert to grayscale value for pixel 4
+	    gray_pixel7=gray_pixel7+coeff_result;
+	    MulBlue7.apply(blue_M,blue_C7,coeff_result);
+	    gray_pixel7=gray_pixel7+coeff_result;
+
+	    MulRed8.apply(red_M,red_C8,coeff_result);
+	    gray_pixel8=gray_pixel8+coeff_result;
+	    MulGreen8.apply(green_M,green_C8,coeff_result);						//using color information to convert to grayscale value for pixel 4
+	    gray_pixel8=gray_pixel8+coeff_result;
+	    MulBlue8.apply(blue_M,blue_C8,coeff_result);
+	    gray_pixel8=gray_pixel8+coeff_result;
+
+	    MulRed9.apply(red_M,red_C9,coeff_result);
+	    gray_pixel9=gray_pixel9+coeff_result;
+	    MulGreen9.apply(green_M,green_C9,coeff_result);						//using color information to convert to grayscale value for pixel 4
+	    gray_pixel9=gray_pixel9+coeff_result;
+	    MulBlue9.apply(blue_M,blue_C9,coeff_result);
+	    gray_pixel9=gray_pixel9+coeff_result;
+
+
+
+
+
+
+
 	    bit<4> floating=gray_pixel1[3:0];
 	    gray_pixel1=gray_pixel1 >> 4;
 	    if (floating >= 8) {
@@ -1176,8 +1333,44 @@ control MyIngress(inout headers hdr,
 	    }
 	    if (gray_pixel4 > 255) gray_pixel4 = 32w255;
 
+	    floating=gray_pixel5[3:0];
+	    gray_pixel5=gray_pixel5 >> 4;
+	    if (floating >= 8) {
+		gray_pixel5=gray_pixel5+1;
+	    }
+	    if (gray_pixel5 > 255) gray_pixel5 = 32w255;
+
+	    floating=gray_pixel6[3:0];
+	    gray_pixel6=gray_pixel6 >> 4;
+	    if (floating >= 8) {
+		gray_pixel6=gray_pixel6+1;
+	    }
+	    if (gray_pixel6 > 255) gray_pixel6 = 32w255;
+
+	    floating=gray_pixel7[3:0];
+	    gray_pixel7=gray_pixel7 >> 4;
+	    if (floating >= 8) {
+		gray_pixel7=gray_pixel7+1;
+	    }
+	    if (gray_pixel7 > 255) gray_pixel7 = 32w255;
+
+	    floating=gray_pixel8[3:0];
+	    gray_pixel8=gray_pixel8 >> 4;
+	    if (floating >= 8) {
+		gray_pixel8=gray_pixel8+1;
+	    }
+	    if (gray_pixel8 > 255) gray_pixel8 = 32w255;
+
+	    floating=gray_pixel9[3:0];
+	    gray_pixel9=gray_pixel9 >> 4;
+	    if (floating >= 8) {
+		gray_pixel9=gray_pixel9+1;
+	    }
+	    if (gray_pixel9 > 255) gray_pixel9 = 32w255;
+
 
 	    if (min_gray==0) min_gray=9999;
+
 	    if (gray_pixel1 > max_gray) max_gray=gray_pixel1;						//for finding maximum and minimum intensity for contrast calculation
 	    if (gray_pixel1 < min_gray && gray_pixel1!=0) min_gray=gray_pixel1;
 
@@ -1189,6 +1382,31 @@ control MyIngress(inout headers hdr,
 
 	    if (gray_pixel4 > max_gray) max_gray=gray_pixel4;						
 	    if (gray_pixel4 < min_gray && gray_pixel4!=0) min_gray=gray_pixel4;
+
+	    if (gray_pixel5 > max_gray) max_gray=gray_pixel5;						
+	    if (gray_pixel5 < min_gray && gray_pixel5!=0) min_gray=gray_pixel5;
+
+	    if (gray_pixel6 > max_gray) max_gray=gray_pixel6;						
+	    if (gray_pixel6 < min_gray && gray_pixel6!=0) min_gray=gray_pixel6;
+
+	    if (gray_pixel7 > max_gray) max_gray=gray_pixel7;						
+	    if (gray_pixel7 < min_gray && gray_pixel7!=0) min_gray=gray_pixel7;
+
+	    if (gray_pixel8 > max_gray) max_gray=gray_pixel8;						
+	    if (gray_pixel8 < min_gray && gray_pixel8!=0) min_gray=gray_pixel8;
+
+	    if (gray_pixel9 > max_gray) max_gray=gray_pixel9;						
+	    if (gray_pixel9< min_gray && gray_pixel9!=0) min_gray=gray_pixel9;
+
+	   intensity_count=intensity_count+gray_pixel1;
+	   intensity_count=intensity_count+gray_pixel2;
+	   intensity_count=intensity_count+gray_pixel3;
+	   intensity_count=intensity_count+gray_pixel4;
+	   intensity_count=intensity_count+gray_pixel5;
+	   intensity_count=intensity_count+gray_pixel6;
+	   intensity_count=intensity_count+gray_pixel7;
+	   intensity_count=intensity_count+gray_pixel8;
+	   intensity_count=intensity_count+gray_pixel9;
 
 
 	    compute_hashes(hdr.colors.red1,hdr.colors.green1,hdr.colors.blue1);
@@ -1278,16 +1496,139 @@ control MyIngress(inout headers hdr,
     	    //if its new color, set the value as 1. If its old, the value is 1 anyways
 	    bloom_filter.write(filter_address,1);
 
+	    compute_hashes(hdr.colors.red5,hdr.colors.green5,hdr.colors.blue5);
+	    //read the bloom filter value at that hashed address
+	    bloom_filter.read(filter_value,filter_address);
+	    //if its 0, that means its a new color, increment counter
+	    if (hdr.udp.srcPort!=10000) {
+		    if ( gray_pixel5 < 85 ) {
+		        	low_gray = low_gray + 1;
+	            }
+		   else if ( gray_pixel5 < 170  ) {
+		   	mid_gray = mid_gray + 1;
+	            }
+		   else if (gray_pixel5 < 256)  {
+		   	high_gray = high_gray + 1;
+                    }
+	            if (filter_value==0 ) {
+			    count=count+1;
+		    }
+	    }
+    	    //if its new color, set the value as 1. If its old, the value is 1 anyways
+	    bloom_filter.write(filter_address,1);
+
+	    compute_hashes(hdr.colors.red6,hdr.colors.green6,hdr.colors.blue6);
+	    //read the bloom filter value at that hashed address
+	    bloom_filter.read(filter_value,filter_address);
+	    //if its 0, that means its a new color, increment counter
+	    if (hdr.udp.srcPort!=10000) {
+		    if ( gray_pixel6< 85 ) {
+		        	low_gray = low_gray + 1;
+	            }
+		   else if ( gray_pixel6 < 170  ) {
+		   	mid_gray = mid_gray + 1;
+	            }
+		   else if (gray_pixel6< 256)  {
+		   	high_gray = high_gray + 1;
+                    }
+	            if (filter_value==0 ) {
+			    count=count+1;
+		    }
+	    }
+    	    //if its new color, set the value as 1. If its old, the value is 1 anyways
+	    bloom_filter.write(filter_address,1);
+
+	    compute_hashes(hdr.colors.red7,hdr.colors.green7,hdr.colors.blue7);
+	    //read the bloom filter value at that hashed address
+	    bloom_filter.read(filter_value,filter_address);
+	    //if its 0, that means its a new color, increment counter
+	    if (hdr.udp.srcPort!=10000) {
+		    if ( gray_pixel7 < 85 ) {
+		        	low_gray = low_gray + 1;
+	            }
+		   else if ( gray_pixel7 < 170  ) {
+		   	mid_gray = mid_gray + 1;
+	            }
+		   else if (gray_pixel7< 256)  {
+		   	high_gray = high_gray + 1;
+                    }
+	            if (filter_value==0 ) {
+			    count=count+1;
+		    }
+	    }
+    	    //if its new color, set the value as 1. If its old, the value is 1 anyways
+	    bloom_filter.write(filter_address,1);
+
+	    compute_hashes(hdr.colors.red8,hdr.colors.green8,hdr.colors.blue8);
+	    //read the bloom filter value at that hashed address
+	    bloom_filter.read(filter_value,filter_address);
+	    //if its 0, that means its a new color, increment counter
+	    if (hdr.udp.srcPort!=10000) {
+		    if ( gray_pixel8 < 85 ) {
+		        	low_gray = low_gray + 1;
+	            }
+		   else if ( gray_pixel8 < 170  ) {
+		   	mid_gray = mid_gray + 1;
+	            }
+		   else if (gray_pixel8 < 256)  {
+		   	high_gray = high_gray + 1;
+                    }
+	            if (filter_value==0 ) {
+			    count=count+1;
+		    }
+	    }
+    	    //if its new color, set the value as 1. If its old, the value is 1 anyways
+	    bloom_filter.write(filter_address,1);
+
+	    compute_hashes(hdr.colors.red9,hdr.colors.green9,hdr.colors.blue9);
+	    //read the bloom filter value at that hashed address
+	    bloom_filter.read(filter_value,filter_address);
+	    //if its 0, that means its a new color, increment counter
+	    if (hdr.udp.srcPort!=10000) {
+		    if ( gray_pixel9 < 85 ) {
+		        	low_gray = low_gray + 1;
+	            }
+		   else if ( gray_pixel9 < 170  ) {
+		   	mid_gray = mid_gray + 1;
+	            }
+		   else if (gray_pixel9 < 256)  {
+		   	high_gray = high_gray + 1;
+                    }
+	            if (filter_value==0 ) {
+			    count=count+1;
+		    }
+	    }
+    	    //if its new color, set the value as 1. If its old, the value is 1 anyways
+	    bloom_filter.write(filter_address,1);
+	  
+
+
+	    laplace=8*(int<32>)gray_pixel5-(int<32>)gray_pixel1-(int<32>)gray_pixel2-(int<32>)gray_pixel3-(int<32>)gray_pixel4-(int<32>)gray_pixel6-(int<32>)gray_pixel7-(int<32>)gray_pixel8-(int<32>)gray_pixel9;
+
+	    //hdr.counts.number=prev_laplace;
+	   //hdr.counts.low_gray=laplace;
+
+	    if (prev_laplace!=0) {
+		if (laplace*prev_laplace < 0) {
+			edge_count=edge_count+1;    
+		}
+            }
+	    if (laplace != 0) {
+		prev_laplace=laplace;
+	    }
+
+		
+            hdr.counts.number=count;
+            hdr.counts.low_gray=low_gray;
+	    hdr.counts.mid_gray=mid_gray;
+	    hdr.counts.high_gray=high_gray;
+	    hdr.counts.edge_count=edge_count;
+
 
 
 	    if (hdr.udp.srcPort==10000)  {
-		bit<32> total_pixel=hdr.counts.contrast*4;
-		DivLowGray.apply(low_gray,total_pixel,low_ratio);
-		DivMidGray.apply(mid_gray,total_pixel,mid_ratio);
-		DivHighGray.apply(high_gray,total_pixel,high_ratio);
-		hdr.counts.low_ratio=low_ratio;
-		hdr.counts.mid_ratio=mid_ratio;
-		hdr.counts.high_ratio=high_ratio;
+
+		bit<32> total_pixel=packetno*9;
 
 		//Contrast
 		bit<32> contrast_num=max_gray-min_gray;
@@ -1295,23 +1636,46 @@ control MyIngress(inout headers hdr,
 		bit<32> contrast_den=max_gray+min_gray;
 		contrast_den=contrast_den <<4;
 		DivContrast.apply(contrast_num,contrast_den,contrast);
+
+		//Brightness
+		DivBrightness.apply(intensity_count,total_pixel,brightness);
+
+
+		
+		feature1=count;
+		feature2=low_gray;
+		feature3=mid_gray;
+		feature4=high_gray;
+		feature5=edge_count;
+		feature6=brightness;
+		feature7=contrast;
+
+		decision_table.apply();
+		hdr.counts.brightness=brightness;
 		hdr.counts.contrast=contrast;
+		hdr.counts.class_decision=final_class;
+		hdr.counts.sequence=packetno;
+
+		low_gray=0;
+		mid_gray=0;
+		high_gray=0;
+		count=0;
+		min_gray=0;
+		max_gray=0;
 	    }
 
 
 	    //write the counter value to register
 	    count_reg.write(0,count);
+	    count_intensity.write(0,intensity_count);
+	    count_edge.write(0,edge_count);
+	    laplace_prev.write(0,prev_laplace);
 	    gray_reg.write(0,low_gray);
 	    gray_reg.write(1,mid_gray);
 	    gray_reg.write(2,high_gray);
 	    gray_maxmin.write(0,min_gray);
 	    gray_maxmin.write(1,max_gray);
 	
-	    //store the value in the dstPort. (this is just a placeholder for testing, we can store it in another part of the packet later)
-	    hdr.counts.number=count;
-	    hdr.counts.low_gray=low_gray;
-	    hdr.counts.mid_gray=mid_gray;
-	    hdr.counts.high_gray=high_gray;
 
 	    ipv4_lpm.apply();
 	    

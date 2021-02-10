@@ -52,6 +52,703 @@
         "dstAddr": "08:00:00:00:04:00",
         "port": 4
       }
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,3785],
+        "feature2": [0,188],
+        "feature3": [0,999999],
+        "feature4": [0,999999],
+        "feature5": [0,455],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,3785],
+        "feature2": [189,6436],
+        "feature3": [0,999999],
+        "feature4": [0,999999],
+        "feature5": [0,455],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 0
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,3785],
+        "feature2": [6437,999999],
+        "feature3": [0,999999],
+        "feature4": [0,999999],
+        "feature5": [0,455],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [3786,999999],
+        "feature2": [0,999999],
+        "feature3": [0,999999],
+        "feature4": [0,999999],
+        "feature5": [0,392],
+        "feature6": [0,2515],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [3786,999999],
+        "feature2": [0,1511],
+        "feature3": [0,999999],
+        "feature4": [0,5006],
+        "feature5": [393,455],
+        "feature6": [0,2398],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [3786,999999],
+        "feature2": [1512,999999],
+        "feature3": [0,999999],
+        "feature4": [0,5006],
+        "feature5": [393,455],
+        "feature6": [0,2398],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [3786,999999],
+        "feature2": [0,999999],
+        "feature3": [0,999999],
+        "feature4": [0,5006],
+        "feature5": [393,455],
+        "feature6": [2399,2515],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [3786,999999],
+        "feature2": [0,999999],
+        "feature3": [0,999999],
+        "feature4": [5007,999999],
+        "feature5": [393,455],
+        "feature6": [0,2515],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [3786,999999],
+        "feature2": [0,999999],
+        "feature3": [0,999999],
+        "feature4": [0,5088],
+        "feature5": [0,455],
+        "feature6": [2516,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 0
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [3786,999999],
+        "feature2": [0,999999],
+        "feature3": [0,999999],
+        "feature4": [5089,999999],
+        "feature5": [0,405],
+        "feature6": [2516,999999],
+        "feature7": [0,13]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [3786,999999],
+        "feature2": [0,999999],
+        "feature3": [0,999999],
+        "feature4": [5089,5644],
+        "feature5": [0,405],
+        "feature6": [2516,999999],
+        "feature7": [14,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 0
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [3786,999999],
+        "feature2": [0,999999],
+        "feature3": [0,999999],
+        "feature4": [5645,999999],
+        "feature5": [0,405],
+        "feature6": [2516,999999],
+        "feature7": [14,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [3786,999999],
+        "feature2": [0,999999],
+        "feature3": [0,999999],
+        "feature4": [5089,999999],
+        "feature5": [406,455],
+        "feature6": [2516,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,999999],
+        "feature2": [0,999999],
+        "feature3": [0,2342],
+        "feature4": [0,605],
+        "feature5": [456,999999],
+        "feature6": [0,2015],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,999999],
+        "feature2": [0,4944],
+        "feature3": [0,2242],
+        "feature4": [606,999999],
+        "feature5": [456,999999],
+        "feature6": [0,1789],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 0
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,999999],
+        "feature2": [0,4944],
+        "feature3": [0,2242],
+        "feature4": [606,999999],
+        "feature5": [456,999999],
+        "feature6": [1790,2015],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,999999],
+        "feature2": [4945,999999],
+        "feature3": [0,2242],
+        "feature4": [606,999999],
+        "feature5": [456,999999],
+        "feature6": [0,2015],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,5490],
+        "feature2": [0,999999],
+        "feature3": [2243,2342],
+        "feature4": [606,999999],
+        "feature5": [456,999999],
+        "feature6": [0,2015],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 0
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [5491,999999],
+        "feature2": [0,999999],
+        "feature3": [2243,2342],
+        "feature4": [606,999999],
+        "feature5": [456,999999],
+        "feature6": [0,2015],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,999999],
+        "feature2": [0,999999],
+        "feature3": [0,2342],
+        "feature4": [0,999999],
+        "feature5": [456,999999],
+        "feature6": [2016,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,6682],
+        "feature2": [0,2206],
+        "feature3": [2343,999999],
+        "feature4": [0,999999],
+        "feature5": [456,475],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [6683,7522],
+        "feature2": [0,2206],
+        "feature3": [2343,999999],
+        "feature4": [0,999999],
+        "feature5": [456,475],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,7522],
+        "feature2": [2207,999999],
+        "feature3": [2343,999999],
+        "feature4": [0,1380],
+        "feature5": [456,475],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,7522],
+        "feature2": [2207,999999],
+        "feature3": [2343,999999],
+        "feature4": [1381,999999],
+        "feature5": [456,475],
+        "feature6": [0,999999],
+        "feature7": [0,15]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 0
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,7522],
+        "feature2": [2207,999999],
+        "feature3": [2343,999999],
+        "feature4": [1381,999999],
+        "feature5": [456,475],
+        "feature6": [0,999999],
+        "feature7": [16,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,7408],
+        "feature2": [0,999999],
+        "feature3": [2343,999999],
+        "feature4": [0,3064],
+        "feature5": [476,539],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7409,7522],
+        "feature2": [0,999999],
+        "feature3": [2343,999999],
+        "feature4": [0,3064],
+        "feature5": [476,539],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,7522],
+        "feature2": [0,999999],
+        "feature3": [2343,999999],
+        "feature4": [3065,999999],
+        "feature5": [476,485],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 0
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,7522],
+        "feature2": [0,999999],
+        "feature3": [2343,999999],
+        "feature4": [3065,999999],
+        "feature5": [486,539],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,7522],
+        "feature2": [0,999999],
+        "feature3": [2343,999999],
+        "feature4": [0,999999],
+        "feature5": [540,999999],
+        "feature6": [0,2043],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [0,7522],
+        "feature2": [0,999999],
+        "feature3": [2343,999999],
+        "feature4": [0,999999],
+        "feature5": [540,999999],
+        "feature6": [2044,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7523,999999],
+        "feature2": [0,4735],
+        "feature3": [2343,999999],
+        "feature4": [0,1322],
+        "feature5": [456,477],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7523,999999],
+        "feature2": [4736,999999],
+        "feature3": [2343,999999],
+        "feature4": [0,1322],
+        "feature5": [456,477],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7523,999999],
+        "feature2": [0,999999],
+        "feature3": [2343,999999],
+        "feature4": [0,1322],
+        "feature5": [478,999999],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7523,7992],
+        "feature2": [0,999999],
+        "feature3": [2343,3069],
+        "feature4": [1323,2046],
+        "feature5": [456,999999],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7523,7992],
+        "feature2": [0,999999],
+        "feature3": [2343,3069],
+        "feature4": [2047,999999],
+        "feature5": [456,999999],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 0
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7993,999999],
+        "feature2": [0,999999],
+        "feature3": [2343,3069],
+        "feature4": [1323,999999],
+        "feature5": [456,999999],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7523,7714],
+        "feature2": [0,999999],
+        "feature3": [3070,4494],
+        "feature4": [1323,999999],
+        "feature5": [456,999999],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 0
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7715,999999],
+        "feature2": [0,999999],
+        "feature3": [3070,4494],
+        "feature4": [1323,999999],
+        "feature5": [456,999999],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7523,999999],
+        "feature2": [0,999999],
+        "feature3": [4495,5399],
+        "feature4": [1323,999999],
+        "feature5": [456,999999],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 2
+      },
+      "priority": 1
+    },
+    {
+      "table": "MyIngress.decision_table",
+     "match": {
+        "feature1": [7523,999999],
+        "feature2": [0,999999],
+        "feature3": [5400,999999],
+        "feature4": [1323,999999],
+        "feature5": [456,999999],
+        "feature6": [0,999999],
+        "feature7": [0,999999]
+      },
+      "action_name": "MyIngress.class_value",
+      "action_params": {
+        "value": 1
+      },
+      "priority": 1
     }
   ]
 }
