@@ -1,3 +1,20 @@
+======================================
+	Install requirements
+======================================
+
+This is a Python 3 based project. It requires the following modules:
+	fxpmath
+	pydotplus
+	pandas
+	sklearn
+	matplotlib
+
+To install the requirements run "sudo pip3 install fxpmath pydotplus pandas sklearn matplotlib"	
+
+======================================
+	Run
+======================================
+
 Unzip the MNIST27.zip to get the imageset
 
 Open "MakeDataset.py" in a text editor

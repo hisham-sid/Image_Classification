@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import argparse
 import sys
 import numpy as np
@@ -17,10 +18,10 @@ names = []
 pixels = []
 file=open("dataset.txt","a")
 
-for f in glob.iglob("Imagenet/*"):
+for f in glob.iglob("MNIST27/*"):
     image=Image.open(f)
     iname=f.replace(".jpg","")
-    iname=iname.replace("Imagenet/","")
+    iname=iname.replace("MNIST27/","")
     label=''.join([i for i in iname if not i.isdigit()])
     names.append(label)
     images.append(image)

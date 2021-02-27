@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import argparse
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import export_text
 from sklearn.metrics import accuracy_score
 from sklearn.tree import export_graphviz
 import pydotplus
@@ -36,8 +37,9 @@ def get_lineage(tree, feature_names, file):
         else:
             parent = np.where(right == child)[0].item()
             split = 'r'
-        
+      
         lineage.append((parent, split, threshold[parent], features[parent]))
+
         if parent == 0:
             lineage.reverse()
             return lineage
@@ -47,7 +49,8 @@ def get_lineage(tree, feature_names, file):
     for j, child in enumerate(idx):
         clause = ' when '
         for node in recurse(left, right, child):
-                if len(str(node)) < 3:
+                #if len(str(node)) < 3:
+                if str(node).find('(') != 0:
                     continue
                 i = node
                 
@@ -85,8 +88,9 @@ Xt = np.array(Xt)
 Yt = np.array(Yt)
 
 # decision tree fit
-dt = DecisionTreeClassifier(max_depth = 7)
+dt = DecisionTreeClassifier(max_depth = 10)
 dt.fit(X, Y)
+
 Predict_Y = dt.predict(X)
 print(accuracy_score(Y, Predict_Y))
 
