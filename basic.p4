@@ -97,13 +97,6 @@ header colors_t {
 }
 
 header counts_t {
-	bit<32> number;
-        bit<32> low_gray;
-	bit<32> mid_gray;
-	bit<32> high_gray;
-	bit<32> edge_count;
-	bit<32> brightness;
-	bit<32> contrast;
 	bit<32> class_decision;
 	bit<32> sequence;
 }
@@ -1661,13 +1654,6 @@ control MyIngress(inout headers hdr,
 		feature7=contrast;
 
 		decision_table.apply();
-		hdr.counts.number=count;
-            	hdr.counts.low_gray=low_gray;
-	    	hdr.counts.mid_gray=mid_gray;
-	    	hdr.counts.high_gray=high_gray;
-	    	hdr.counts.edge_count=edge_count;
-		hdr.counts.brightness=brightness;
-		hdr.counts.contrast=contrast;
 		hdr.counts.class_decision=final_class;
 		hdr.counts.sequence=packetno;
 

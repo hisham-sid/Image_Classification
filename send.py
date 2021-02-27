@@ -42,14 +42,7 @@ class Colors(Packet):
 
 class Counts(Packet):
     name="Counts"
-    fields_desc=[ BitField("total_colors",0,32),
-                 BitField("low_gray",0,32),
-                 BitField("mid_gray",0,32),
-                 BitField("high_gray",0,32),
-                 BitField("edge_count",0,32),
-                 BitField("brightness",0,32),
-                 BitField("contrast",0,32),
-                 BitField("class_decision",0,32),
+    fields_desc=[ BitField("class_decision",0,32),
                  BitField("sequence",10,32) ]
 
 #getting the interface from the interface list

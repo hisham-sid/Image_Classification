@@ -39,29 +39,15 @@ def handle_pkt(pkt):
     if UDP in pkt and pkt[UDP].dport>9999:
         if Raw in pkt:
             str=pkt[Raw].load
-            counter=struct.unpack('36B',str)
+            counter=struct.unpack('8B',str)
 
 
-            num=counter[0]*256**3+counter[1]*256**2+counter[2]*256**1+counter[3]
-            low_gray=counter[4]*256**3+counter[5]*256**2+counter[6]*256**1+counter[7]
-            mid_gray=counter[8]*256**3+counter[9]*256**2+counter[10]*256**1+counter[11]
-            high_gray=counter[12]*256**3+counter[13]*256**2+counter[14]*256**1+counter[15]
-            edge_count=counter[16]*256**3+counter[17]*256**2+counter[18]*256**1+counter[19]
-            brightness=counter[20]*256**3+counter[21]*256**2+counter[22]*256**1+counter[23]
-            contrast=counter[24]*256**3+counter[25]*256**2+counter[26]*256**1+counter[27]
-            class_decision=counter[28]*256**3+counter[29]*256**2+counter[30]*256**1+counter[31]
-            sqn=counter[32]*256**3+counter[33]*256**2+counter[34]*256**1+counter[35]
-            #print(num,end='\t')
-            #print(low_gray)
+            class_decision=counter[0]*256**3+counter[1]*256**2+counter[2]*256**1+counter[3]
+            sqn=counter[4]*256**3+counter[5]*256**2+counter[6]*256**1+counter[7]
+
             if (pkt[UDP].sport==10000):
-                print(num,end=' \t')
-                print(low_gray,end=' \t')
-                print(mid_gray,end=' \t')
-                print(high_gray,end=' \t')
-                print(edge_count,end=' \t')
-                print(brightness,end=' \t')
-                print(contrast,end=' \t')
-                print(class_decision,end=' \t')
+                print("Class Decision\t\tPackets")
+                print(class_decision,end=" \t\t\t")
                 print(sqn)
             sys.stdout.flush()
     
