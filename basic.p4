@@ -1069,6 +1069,9 @@ control MyIngress(inout headers hdr,
 		   
     div() DivBrightness;
     div() DivContrast;
+    div() DivLowIntensity;
+    div() DivMidIntensity;
+    div() DivHighIntensity;
 
     mul() MulRed1;
     mul() MulGreen1;
@@ -1605,9 +1608,6 @@ control MyIngress(inout headers hdr,
 
 	    laplace=8*(int<32>)gray_pixel5-(int<32>)gray_pixel1-(int<32>)gray_pixel2-(int<32>)gray_pixel3-(int<32>)gray_pixel4-(int<32>)gray_pixel6-(int<32>)gray_pixel7-(int<32>)gray_pixel8-(int<32>)gray_pixel9;
 
-	    //hdr.counts.number=prev_laplace;
-	   //hdr.counts.low_gray=laplace;
-
 	    if (prev_laplace!=0) {
 		if (laplace*prev_laplace < 0) {
 			edge_count=edge_count+1;    
@@ -1617,19 +1617,28 @@ control MyIngress(inout headers hdr,
 		prev_laplace=laplace;
 	    }
 
-		
-            hdr.counts.number=count;
-            hdr.counts.low_gray=low_gray;
-	    hdr.counts.mid_gray=mid_gray;
-	    hdr.counts.high_gray=high_gray;
-	    hdr.counts.edge_count=edge_count;
-
-
 
 	    if (hdr.udp.srcPort==10000)  {
 
 		bit<32> total_pixel=packetno*9;
+		total_pixel=total_pixel << 4;
+		bit<32> divresult=32w0;
 
+		//Low Intensity Ratio
+		low_gray=low_gray << 4;
+		DivLowIntensity.apply(low_gray,total_pixel,divresult);
+		low_gray=divresult;
+
+		//Mid Intensity Ratio
+		mid_gray=mid_gray << 4;
+		DivMidIntensity.apply(mid_gray,total_pixel,divresult);
+		mid_gray=divresult;
+
+		//High Intensity Ratio
+		high_gray=high_gray << 4;
+		DivHighIntensity.apply(high_gray,total_pixel,divresult);
+		high_gray=divresult;		
+		
 		//Contrast
 		bit<32> contrast_num=max_gray-min_gray;
 		contrast_num=contrast_num <<4;
@@ -1638,6 +1647,7 @@ control MyIngress(inout headers hdr,
 		DivContrast.apply(contrast_num,contrast_den,contrast);
 
 		//Brightness
+		intensity_count=intensity_count << 4;
 		DivBrightness.apply(intensity_count,total_pixel,brightness);
 
 
@@ -1651,6 +1661,11 @@ control MyIngress(inout headers hdr,
 		feature7=contrast;
 
 		decision_table.apply();
+		hdr.counts.number=count;
+            	hdr.counts.low_gray=low_gray;
+	    	hdr.counts.mid_gray=mid_gray;
+	    	hdr.counts.high_gray=high_gray;
+	    	hdr.counts.edge_count=edge_count;
 		hdr.counts.brightness=brightness;
 		hdr.counts.contrast=contrast;
 		hdr.counts.class_decision=final_class;

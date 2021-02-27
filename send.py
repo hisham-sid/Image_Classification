@@ -49,8 +49,8 @@ class Counts(Packet):
                  BitField("edge_count",0,32),
                  BitField("brightness",0,32),
                  BitField("contrast",0,32),
-                 BitField("sequence",0,32),
-                 BitField("class_decision",10,32) ]
+                 BitField("class_decision",0,32),
+                 BitField("sequence",10,32) ]
 
 #getting the interface from the interface list
 def get_if():
@@ -120,7 +120,7 @@ def main():
             s.send(pkt)
 	
     pkt2 =  Ether(src=get_if_hwaddr(iface), dst='ff:ff:ff:ff:ff:ff')
-    pkt2= pkt2 /IP(dst=addr) / UDP(dport=50000, sport=10000)/Colors()/Counts(sequence=sqn)  
+    pkt2= pkt2 /IP(dst=addr) / UDP(dport=50000, sport=10000)/Colors()/Counts(class_decision=10,sequence=sqn)  
     pkt2.show()
     sendp(pkt2, iface=iface, verbose=False)
 if __name__ == '__main__':

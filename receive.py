@@ -41,6 +41,7 @@ def handle_pkt(pkt):
             str=pkt[Raw].load
             counter=struct.unpack('36B',str)
 
+
             num=counter[0]*256**3+counter[1]*256**2+counter[2]*256**1+counter[3]
             low_gray=counter[4]*256**3+counter[5]*256**2+counter[6]*256**1+counter[7]
             mid_gray=counter[8]*256**3+counter[9]*256**2+counter[10]*256**1+counter[11]
