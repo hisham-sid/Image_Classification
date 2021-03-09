@@ -1124,6 +1124,10 @@ control MyIngress(inout headers hdr,
 
     }
 
+    action set_port(egressSpec_t port) {
+	standard_metadata.egress_spec=port;
+    }
+
     action ipv4_forward(macAddr_t dstAddr, egressSpec_t port) {
         standard_metadata.egress_spec = port;
         hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
@@ -1148,6 +1152,16 @@ control MyIngress(inout headers hdr,
         default_action = drop();
     }
 
+    table forwarding {
+	key = {
+		hdr.udp.dstPort: exact;
+	}
+	actions = {
+		set_port;
+		drop;
+	}
+    }
+
     table decision_table {
         key = {
             feature1: range;
@@ -1162,8 +1176,8 @@ control MyIngress(inout headers hdr,
             class_value;
             NoAction;
         }
+	size=20480;
     }	
-
     
     apply {
 
@@ -1678,7 +1692,7 @@ control MyIngress(inout headers hdr,
 	    gray_maxmin.write(1,max_gray);
 	
 
-	    ipv4_lpm.apply();
+	    forwarding.apply();
 	    
         }
     }

@@ -37,6 +37,7 @@ class IPOption_MRI(IPOption):
                                    length_from=lambda pkt:pkt.count*4) ]
 def handle_pkt(pkt):
     if UDP in pkt and pkt[UDP].dport>9999:
+        print("got packet")
         if Raw in pkt:
             str=pkt[Raw].load
             counter=struct.unpack('8B',str)
@@ -45,16 +46,20 @@ def handle_pkt(pkt):
             class_decision=counter[0]*256**3+counter[1]*256**2+counter[2]*256**1+counter[3]
             sqn=counter[4]*256**3+counter[5]*256**2+counter[6]*256**1+counter[7]
 
-            if (pkt[UDP].sport==10000):
+            if (pkt[UDP].sport==10000 or sqn%1000==0):
+                f=open("labels.txt","r")
+                labels=[line.rstrip(";\n") for line in f]
+                f.close()
                 print("Class Decision\t\tPackets")
-                print(class_decision,end=" \t\t\t")
+                print(labels[class_decision],end=" \t\t\t")
                 print(sqn)
             sys.stdout.flush()
     
 
 def main():
     ifaces = list(filter(lambda i: 'eth' in i, os.listdir('/sys/class/net/')))
-    iface = ifaces[0]
+    #iface = ifaces[0]
+    iface='veth2'
     print("sniffing on %s" % iface)
     sys.stdout.flush()
     sniff(iface = iface,
