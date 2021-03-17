@@ -5,7 +5,7 @@
 const bit<16> TYPE_IPV4 = 0x800;
 
 
-#define BLOOM_FILTER_ENTRIES 445000
+#define BLOOM_FILTER_ENTRIES 4445000
 #define BLOOM_FILTER_BIT_WIDTH 1
 
 /*************************************************************************
