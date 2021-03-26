@@ -1,23 +1,28 @@
 # Image_Classification
 1. Download the P4 Virtual Machine from: https://p4.org/events/2019-04-30-p4-developer-day/
 
-2. Once the VM is imported and running, clone the P4 tutorial exercies from: https://github.com/p4lang/tutorials
-3. Next, clone this repository from: https://github.com/hisham-sid/Image_Classification
+2. Clone this repository from: https://github.com/hisham-sid/Image_Classification
   (use git clone [name of the repositoy])
 
-4. Once done, move all the files from the Image_Classification repository to the exercises/basic folder inside the P4 tutorial clone. This will overwrite the files already there with the same name
-  ( cd Image_Classification
-  mv * [wherever the tutorials\exercises\basic folder is] )
+3. Run the veth_setup.sh script:
+  cd Image_Classification
+  chmod +x veth_setup.sh
+  ./veth_setup.sh
   
-5. Next, navigate to the basic folder using cd.
-6. move the file s1-runtime.json to the pod-topo folder using
-  mv s1-runtime.json pod-topo
-6  Run make
-7. Once the mininet CLI is up, run xterm h1 h2
-8. Run the receive script from your receiving host using ./receive.py
-8. When invoking the send script from a host terminal, use the name of the image you wish to send as the argument instead of the message.
-
-For e.g:
-  (for sending from h1 to h2) 
-  Command at h2 => ./receive.py
-  Command at h1 => ./send.py 10.0.2.2 index2.png
+4. Next, navigate to the Control Plane folder using cd.
+5. Follow the instructions in readme.txt in Control Plane folder to generate the tree.txt file
+6. Copy the tree.txt file from Control Plane folder to original folder
+  cd ..
+  cp ./Control Plane/tree.txt ./
+7. Run RuleSetterNew.py script:
+ python3 RuleSetterNew.py
+8. Open 4 terminals in the Image_Classification folder
+9. In terminal 1:
+  p4c --target bmv2 --arch v1model basic.p4
+  sudo simple_switch_grpc -i 1@veth1 -i 2@veth2 --log-console basic.json
+10. In terminal 2:
+  sudo simple_switch_CLI --thrift-port 9090 < commands.txt
+11. In terminal 3 (we will use this as host 2):
+  sudo python3 receive.py
+12. In terminal 4 (we will use this as host 1):
+  sudo python3 send.py 10.0.2.2 [name of the image]
