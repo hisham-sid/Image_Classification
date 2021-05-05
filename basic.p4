@@ -390,15 +390,6 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 	    //if its 0, that means its a new color, increment counter
 	    if (hdr.udp.srcPort!=10000) {
-		    if ( gray_pixel1 < 85 ) {
-		        	low_gray = low_gray + 1;
-	            }
-		   else if ( gray_pixel1 < 170  ) {
-		   	mid_gray = mid_gray + 1;
-	            }
-		   else if (gray_pixel1 < 256)  {
-		   	high_gray = high_gray + 1;
-                    }
 	            if (filter_value==0 ) {
 			    count=count+1;
 		    }
@@ -411,15 +402,6 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 	    //if its 0, that means its a new color, increment counter
 	    if (hdr.udp.srcPort!=10000) {
-		    if ( gray_pixel2 < 85 ) {
-		        	low_gray = low_gray + 1;
-	            }
-		   else if ( gray_pixel2 < 170  ) {
-		   	mid_gray = mid_gray + 1;
-	            }
-		   else if (gray_pixel2 < 256)  {
-		   	high_gray = high_gray + 1;
-                    }
 	            if (filter_value==0 ) {
 			    count=count+1;
 		    }
@@ -432,15 +414,6 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 	    //if its 0, that means its a new color, increment counter
 	    if (hdr.udp.srcPort!=10000) {
-		    if ( gray_pixel3 < 85 ) {
-		        	low_gray = low_gray + 1;
-	            }
-		   else if ( gray_pixel3 < 170  ) {
-		   	mid_gray = mid_gray + 1;
-	            }
-		   else if (gray_pixel3 < 256)  {
-		   	high_gray = high_gray + 1;
-                    }
 	            if (filter_value==0 ) {
 			    count=count+1;
 		    }
@@ -453,15 +426,6 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 	    //if its 0, that means its a new color, increment counter
 	    if (hdr.udp.srcPort!=10000) {
-		    if ( gray_pixel4 < 85 ) {
-		        	low_gray = low_gray + 1;
-	            }
-		   else if ( gray_pixel4 < 170  ) {
-		   	mid_gray = mid_gray + 1;
-	            }
-		   else if (gray_pixel4 < 256)  {
-		   	high_gray = high_gray + 1;
-                    }
 	            if (filter_value==0 ) {
 			    count=count+1;
 		    }
@@ -474,15 +438,6 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 	    //if its 0, that means its a new color, increment counter
 	    if (hdr.udp.srcPort!=10000) {
-		    if ( gray_pixel5 < 85 ) {
-		        	low_gray = low_gray + 1;
-	            }
-		   else if ( gray_pixel5 < 170  ) {
-		   	mid_gray = mid_gray + 1;
-	            }
-		   else if (gray_pixel5 < 256)  {
-		   	high_gray = high_gray + 1;
-                    }
 	            if (filter_value==0 ) {
 			    count=count+1;
 		    }
@@ -495,15 +450,6 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 	    //if its 0, that means its a new color, increment counter
 	    if (hdr.udp.srcPort!=10000) {
-		    if ( gray_pixel6< 85 ) {
-		        	low_gray = low_gray + 1;
-	            }
-		   else if ( gray_pixel6 < 170  ) {
-		   	mid_gray = mid_gray + 1;
-	            }
-		   else if (gray_pixel6< 256)  {
-		   	high_gray = high_gray + 1;
-                    }
 	            if (filter_value==0 ) {
 			    count=count+1;
 		    }
@@ -516,15 +462,6 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 	    //if its 0, that means its a new color, increment counter
 	    if (hdr.udp.srcPort!=10000) {
-		    if ( gray_pixel7 < 85 ) {
-		        	low_gray = low_gray + 1;
-	            }
-		   else if ( gray_pixel7 < 170  ) {
-		   	mid_gray = mid_gray + 1;
-	            }
-		   else if (gray_pixel7< 256)  {
-		   	high_gray = high_gray + 1;
-                    }
 	            if (filter_value==0 ) {
 			    count=count+1;
 		    }
@@ -537,15 +474,6 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 	    //if its 0, that means its a new color, increment counter
 	    if (hdr.udp.srcPort!=10000) {
-		    if ( gray_pixel8 < 85 ) {
-		        	low_gray = low_gray + 1;
-	            }
-		   else if ( gray_pixel8 < 170  ) {
-		   	mid_gray = mid_gray + 1;
-	            }
-		   else if (gray_pixel8 < 256)  {
-		   	high_gray = high_gray + 1;
-                    }
 	            if (filter_value==0 ) {
 			    count=count+1;
 		    }
@@ -558,15 +486,6 @@ control MyIngress(inout headers hdr,
 	    bloom_filter.read(filter_value,filter_address);
 	    //if its 0, that means its a new color, increment counter
 	    if (hdr.udp.srcPort!=10000) {
-		    if ( gray_pixel9 < 85 ) {
-		        	low_gray = low_gray + 1;
-	            }
-		   else if ( gray_pixel9 < 170  ) {
-		   	mid_gray = mid_gray + 1;
-	            }
-		   else if (gray_pixel9 < 256)  {
-		   	high_gray = high_gray + 1;
-                    }
 	            if (filter_value==0 ) {
 			    count=count+1;
 		    }
@@ -648,7 +567,7 @@ control MyIngress(inout headers hdr,
 		gray_pixel1=gray_pixel1+1;												//If fractional part for the value is above 0.5 (8 in fixed-point notation), ceiling is taken
 	    }
 	    if (gray_pixel1 > 255) gray_pixel1 = 32w255;
-
+	
 	    floating=gray_pixel2[3:0];
 	    gray_pixel2=gray_pixel2 >> 4;
 	    if (floating >= 8) {
@@ -705,6 +624,91 @@ control MyIngress(inout headers hdr,
 	    }
 	    if (gray_pixel9 > 255) gray_pixel9 = 32w255;
 
+	    if (hdr.udp.srcPort!=10000) {
+		    if ( gray_pixel1 < 85 ) {
+			low_gray = low_gray + 1;
+		    }
+		   else if ( gray_pixel1 < 170  ) {
+			mid_gray = mid_gray + 1;
+		    }
+		   else if (gray_pixel1 < 256)  {
+			high_gray = high_gray + 1;
+		    }
+		    if ( gray_pixel2 < 85 ) {
+			low_gray = low_gray + 1;
+		    }
+		   else if ( gray_pixel2 < 170  ) {
+			mid_gray = mid_gray + 1;
+		    }
+		   else if (gray_pixel2 < 256)  {
+			high_gray = high_gray + 1;
+		    }
+		    if ( gray_pixel3 < 85 ) {
+			low_gray = low_gray + 1;
+		    }
+		   else if ( gray_pixel3 < 170  ) {
+			mid_gray = mid_gray + 1;
+		    }
+		   else if (gray_pixel3 < 256)  {
+			high_gray = high_gray + 1;
+		    }
+		    if ( gray_pixel4 < 85 ) {
+			low_gray = low_gray + 1;
+		    }
+		   else if ( gray_pixel4 < 170  ) {
+			mid_gray = mid_gray + 1;
+		    }
+		   else if (gray_pixel4 < 256)  {
+			high_gray = high_gray + 1;
+		    }
+		    if ( gray_pixel5 < 85 ) {
+			low_gray = low_gray + 1;
+		    }
+		   else if ( gray_pixel5 < 170  ) {
+			mid_gray = mid_gray + 1;
+		    }
+		   else if (gray_pixel5 < 256)  {
+			high_gray = high_gray + 1;
+		    }
+		    if ( gray_pixel5 < 85 ) {
+			low_gray = low_gray + 1;
+		    }
+		   else if ( gray_pixel6 < 170  ) {
+			mid_gray = mid_gray + 1;
+		    }
+		   else if (gray_pixel6 < 256)  {
+			high_gray = high_gray + 1;
+		    }
+		    if ( gray_pixel6 < 85 ) {
+			low_gray = low_gray + 1;
+		    }
+		   else if ( gray_pixel7 < 170  ) {
+			mid_gray = mid_gray + 1;
+		    }
+		   else if (gray_pixel7 < 256)  {
+			high_gray = high_gray + 1;
+		    }
+		    if ( gray_pixel8 < 85 ) {
+			low_gray = low_gray + 1;
+		    }
+		   else if ( gray_pixel8 < 170  ) {
+			mid_gray = mid_gray + 1;
+		    }
+		   else if (gray_pixel8 < 256)  {
+			high_gray = high_gray + 1;
+		    }
+		    
+		    if ( gray_pixel9 < 85 ) {
+			low_gray = low_gray + 1;
+	            }
+		   else if ( gray_pixel9 < 170  ) {
+		   	mid_gray = mid_gray + 1;
+	            }
+		   else if (gray_pixel9 < 256)  {
+		   	high_gray = high_gray + 1;
+                    }
+	    }
+	
 	  /*************************************************************************
 	  ****************** INTENSITY COMPUTATION  *****************************
 	  *************************************************************************/
