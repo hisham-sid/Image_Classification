@@ -24,7 +24,15 @@ The control plane then uses this output to relay the rules to the switch.
 
 *NPMath.p4* -> Header file containing the math functions written in p4, to emulate floating point arithmetic, division and multiplication
 
+# Datasets Used
+We used four different datasets for evaluating NetPixel, whose attributes are detailed in Table II. MNIST contains gray-scale images of handwritten digits. CalTech101 and CalTech256 contain variable size color images with 101 and 256 classes, respectively, while ImageNet is a database of 14 million variable size images. There are around 21000 classes in this database, from which we have selected 100.
 
+| Dataset | Image Size | Training Images | No. of Labels
+| ------------- | ------------- | ------------- | ------------- |
+| MNIST  | 28x28x1  | 60k | 10
+| Caltech101  | Variable | 9.2k | 101
+| Caltech256  | Variable  | 30k | 256
+| ImageNet  | Variable  | 20k | 100
 
 # Instructions
 
